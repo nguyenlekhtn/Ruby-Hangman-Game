@@ -1,0 +1,23 @@
+
+[1mFrom:[0m /home/le/Ruby/hangman/lib/hangman.rb:33 Game#play:
+
+    [1;34m17[0m: [32mdef[0m [1;34mplay[0m
+    [1;34m18[0m:   dictionary = load_dictionary
+    [1;34m19[0m:   [1;36mself[0m.secret_word = select_word(dictionary, [1;34m5[0m, [1;34m12[0m)
+    [1;34m20[0m:   turn_number = [1;34m0[0m
+    [1;34m21[0m:   [32mwhile[0m attempts_left.positive?
+    [1;34m22[0m:     display_turn(turn_number)
+    [1;34m23[0m:     do_turn
+    [1;34m24[0m:     [32mif[0m board.all_opened?
+    [1;34m25[0m:       board.display
+    [1;34m26[0m:       announce_player_won
+    [1;34m27[0m:       [32mreturn[0m
+    [1;34m28[0m:     [32mend[0m
+    [1;34m29[0m:     puts [31m[1;31m"[0m[31m[1;35m\n[0m[31m[1;31m"[0m[31m[0m
+    [1;34m30[0m:     turn_number += [1;34m1[0m
+    [1;34m31[0m:   [32mend[0m
+    [1;34m32[0m:   require [31m[1;31m'[0m[31mpry-byebug[1;31m'[0m[31m[0m; binding.pry
+ => [1;34m33[0m:   annouce_no_attempt_left
+    [1;34m34[0m:   annouce_secret_word @secret_word
+    [1;34m35[0m: [32mend[0m
+
