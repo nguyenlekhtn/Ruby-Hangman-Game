@@ -14,7 +14,7 @@ module HangmanDisplay
   end
 
   def annouce_attemps_left(attempts_left)
-    puts "You can give #{attempts_left} more incorrect #{attempts_left > 1 ? "guesses" : "guess"} before game ends"
+    puts "You can give #{attempts_left} more incorrect #{attempts_left > 1 ? 'guesses' : 'guess'} before game ends"
   end
 
   def plural(number, word)
@@ -22,10 +22,25 @@ module HangmanDisplay
   end
 
   def annouce_no_attempt_left
-    puts "\nNo attempt left! Player lose" 
+    puts "\nNo attempt left! Player lose"
   end
 
   def annouce_secret_word(word)
     puts "Secret word is '#{word}'"
+  end
+
+  def annouce_status(status)
+    puts "\nCurrent status: "
+    puts status.join(' ')
+    puts "\n"
+  end
+
+  def player_want_to_save?
+    print 'Do you want to save current state? (y/n)'
+    loop do
+      answer = gets.chomp
+      return true if answer.match(/y/i)
+      return false if answer.match(//n / i)
+    end
   end
 end
