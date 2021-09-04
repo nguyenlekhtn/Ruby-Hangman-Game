@@ -12,7 +12,7 @@ class Game
   ATTEMPTS = 6
   SAVE_DIR = 'save/'
 
-  def self.new_game
+  def self.started_from_save
     guesses = []
     secret_word = word_from_dictionary
     turn = 0
@@ -57,12 +57,12 @@ class Game
 
   def start
     if save_files_exist? && player_want_to_load?
-      load_phase 
-      is_loaded = true
+      load_phase
+      started_from_save = true
     else
-      is_loaded = false
+      started_from_save = false
     end
-    result = play(is_loaded: is_loaded)
+    result = play(started_from_save: started_from_save)
     if result
       announce_player_won
     else
@@ -73,7 +73,7 @@ class Game
 
   private
 
-  def play(is_loaded:)
+  def play(started_from_save:)
     # incorrect_guesses = compute_incorrect_guesses
     return true if all_opened?
     return false if incorrect_guesses.length > ATTEMPTS
@@ -81,7 +81,7 @@ class Game
     display_turn(turn)
     annouce_status(status)
     annouce_incorrect_guesses(incorrect_guesses)
-    save_phase unless is_loaded && turn.zero?
+    save_phase if !started_from_save && !turn.zero?
     puts "\n"
     annouce_attemps_left(attempts_left)
     letter = guess_from_player
@@ -94,7 +94,7 @@ class Game
     announce_num_match(matched_num, letter)
     @turn += 1
     puts "\n\n"
-    play(is_loaded: false)
+    play(started_from_save: false)
   end
 
   def compute_incorrect_guesses(guesses, secret_word)
@@ -181,4 +181,4 @@ class Game
   end
 end
 
-Game.new_game.start
+Game.started_from_save.start
