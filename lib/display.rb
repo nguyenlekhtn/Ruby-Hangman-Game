@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module HangmanDisplay
   def display_turn(turn_number)
     puts "Turn #{turn_number}"
@@ -30,17 +32,61 @@ module HangmanDisplay
   end
 
   def annouce_status(status)
-    puts "\nCurrent status: "
+    puts "\n"
+    puts 'Current status: '
     puts status.join(' ')
+  end
+
+  def annouce_incorrect_guesses(list)
+    puts "Your incorrect_guesses: #{list.join(', ')}"
     puts "\n"
   end
 
+  def annouce_save_done
+    puts "Saved. You can press 'Ctrl + C' to exit game now if you want"
+  end
+
   def player_want_to_save?
-    print 'Do you want to save current state? (y/n)'
+    puts 'Do you want to save current state?'
+    confirm
+  end
+
+  def seperator_lines
+    ''.rjust(10, '-')
+  end
+
+  def confirm
+    print "Press 'y' to accept, press 'Enter' key or others to skip: "
+    answer = gets.chomp
+    return true if answer.match(/y/i)
+
+    false
+  end
+
+  def player_want_to_load?
+    puts 'Do you want to load save files?'
+    confirm
+  end
+
+  def ask_load_indexes(list)
+    puts 'Type the indexes of the file save you want to load, start from 1'
+    print "Press '0' to skip loading and play new game: "
     loop do
       answer = gets.chomp
-      return true if answer.match(/y/i)
-      return false if answer.match(//n / i)
+      return answer.to_i if answer.match(/[0-#{list.length}]/)
+
+      puts 'Not in valid range, please type again'
     end
+  end
+
+  def show_save_list(list)
+    puts 'Save files:'
+    list.each_with_index do |filename, idx|
+      puts "#{idx + 1} - #{filename}"
+    end
+  end
+
+  def annouce_load_finished
+    puts 'Loaded save files'
   end
 end

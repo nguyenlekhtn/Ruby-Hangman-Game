@@ -1,13 +1,16 @@
-puts 'Hangman Initialized!'
+# frozen_string_literal: true
 
+puts 'Hangman Initialized!'
 require 'time'
 require_relative 'display'
 require_relative 'mixin'
+require 'yaml'
 
 class Game
   include HangmanDisplay
   include BasicSerializable
   ATTEMPTS = 6
+  SAVE_DIR = 'save/'
 
   def self.new_game
     guesses = []
@@ -62,39 +65,41 @@ class Game
     end
   end
 
-  # def play
-  #   dictionary = load_dictionary
-  #   self.secret_word = select_word(dictionary, 5, 12)
-  #   turn_number = 0
-  #   while attempts_left.positive?
-  #     display_turn(turn_number)
-  #     do_turn
-  #     if board.all_opened?
-  #       board.display
-  #       announce_player_won
-  #       return
-  #     end
-  #     puts "\n"
-  #     turn_number += 1
-  #   end
-  #   annouce_no_attempt_left
-  #   annouce_secret_word @secret_word
-  # end
-
   def save_phase
-    save_game if player_want_to_save?
+    return unless player_want_to_save?
+
+    save_game
+    annouce_save_done
   end
 
   def save_game
+    Dir.mkdir('save') unless Dir.exist?('save')
     time_formatted = Time.now.strftime('%F_%R')
     filename = "hangman_save_#{time_formatted}"
-    save_content = serialize
-    File.open(filename, 'w') do |file|
+    filepath = "save/#{filename}"
+    save_content = serialize(YAML)
+    File.open(filepath, 'w') do |file|
       file.write(save_content)
     end
   end
 
+  def load_phase
+    # show file saves list with indexes
+    file_list = Dir.children(SAVE_DIR)
+    show_save_list(file_list)
+    # ask players to type indexes to choose
+    answer = ask_load_indexes(file_list)
+    # load the selected files
+    return if answer.zero?
+
+    selected_file_name = file_list[answer - 1]
+    file_path = "#{SAVE_DIR}#{selected_file_name}"
+    unserialize(serializer: YAML, string: file_path, is_file: true)
+    annouce_load_finished
+  end
+
   def start
+    load_phase if player_want_to_load?
     result = play
     if result
       announce_player_won
@@ -112,9 +117,11 @@ class Game
     return false if incorrect_guesses.length > ATTEMPTS
 
     display_turn(turn)
-    save_phase unless turn == 0
-    annouce_attemps_left(attempts_left)
     annouce_status(status)
+    annouce_incorrect_guesses(incorrect_guesses)
+    save_phase unless turn.zero?
+    puts "\n"
+    annouce_attemps_left(attempts_left)
     letter = guess_from_player
     if @secret_word.include? letter
       matched_num = update_status_with(letter)
@@ -158,45 +165,6 @@ class Game
   def all_opened?
     @status.join == @secret_word
   end
-
-  # return true if guess
-  # def do_turn
-  #   board.display
-  #   annouce_attemps_left attempts_left
-  #   letter = player_guess
-  #   if @secret_word.include? letter
-  #     matched_num = board.update_with letter
-  #   else
-  #     @incorrect_guesses << letter
-  #     matched_num = 0
-  #   end
-  #   announce_num_match(matched_num, letter)
-  # end
 end
 
-# class Board
-#   def initialize(word)
-#     @secret_word = word
-#     @board = Array.new(word.length) { '_' }
-#   end
-
-#   attr_reader :board
-
-#   def display
-#     print 'Board: '
-#     puts board.join(' ')
-#   end
-
-#   def all_opened?
-#     @board.join == @secret_word
-#   end
-
-#   def update_with(letter)
-#     # get indexes of letter in @secret_word
-#     matched_indexes = (0...@secret_word.length).find_all { |i| @secret_word[i] == letter }
-#     # replace _ with letter at indexes in board
-#     @board = @board.map.with_index { |element, idx| matched_indexes.include?(idx) ? letter : element }
-#     matched_indexes.length
-#   end
-# end
 Game.new_game.start
