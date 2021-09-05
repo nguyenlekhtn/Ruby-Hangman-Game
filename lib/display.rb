@@ -2,57 +2,80 @@
 
 module HangmanDisplay
   def display_turn(turn_number)
-    puts "Turn #{turn_number}"
+    "Turn #{turn_number}"
   end
 
-  def announce_player_won
-    puts "\nALl letters are opened. Player won!!"
+  def player_won_msg
+    "\nALl letters are opened. Player won!!"
   end
 
-  def announce_num_match(number, letter)
+  def num_match_msg(number, letter)
     letter_word = number <= 1 ? 'letter' : 'letters'
     be = number <= 1 ? 'is' : 'are'
-    puts "There #{be} #{number} #{letter_word} '#{letter}' in secret word"
+    "There #{be} #{number} #{letter_word} '#{letter}' in secret word"
   end
 
   def annouce_attemps_left(attempts_left)
-    puts "You can give #{attempts_left} more incorrect #{attempts_left > 1 ? 'guesses' : 'guess'} before game ends"
+    text = "You can give #{attempts_left} more incorrect #{attempts_left > 1 ? 'guesses' : 'guess'} before game ends"
+    puts red(text)
   end
 
   def plural(number, word)
     "#{number} #{word}#{number > 1 ? 's' : ''}"
   end
 
-  def annouce_no_attempt_left
-    puts "\nNo attempt left! Player lose"
+  def player_lose_msg
+    "\nNo attempt left! Player lose"
   end
 
-  def annouce_secret_word(word)
-    puts "Secret word is '#{word}'"
+  def annouce_secret_word_msg(word)
+    "Secret word is '#{word}'"
   end
 
   def annouce_status(status)
-    puts "\n"
-    puts 'Current status: '
-    puts status.join(' ')
+    text = <<~HEREDOC
+
+      Current status:
+      #{status.join(' ')}
+
+    HEREDOC
+
+    green(text)
   end
 
   def annouce_incorrect_guesses(list)
-    puts "Your incorrect_guesses: #{list.join(', ')}"
-    puts "\n"
+    <<~HEREDOC
+      Your incorrect_guesses: #{list.join(', ')}
+
+    HEREDOC
   end
 
-  def annouce_save_done
-    puts "Saved. You can press 'Ctrl + C' to exit game now if you want"
+  def existed_msg
+    <<~MSG
+      You already guess this letter in previous turns
+    MSG
+  end
+
+  def invalid_input_msg
+    <<~MSG
+      Invalid input
+    MSG
+  end
+  
+  def guess_msg
+    <<~HEREDOC
+      Guess a letter that secret word include
+      You can also type 'save' to save the game
+    HEREDOC
+  end
+
+  def save_done_msg
+    "Saved. You can press 'Ctrl + C' to exit game now if you want"
   end
 
   def player_want_to_save?
     puts 'Do you want to save current state?'
     confirm
-  end
-
-  def seperator_lines
-    ''.rjust(10, '-')
   end
 
   def confirm
@@ -89,4 +112,13 @@ module HangmanDisplay
   def annouce_load_finished
     puts 'Loaded save files'
   end
+end
+
+module Colorize
+  def colorize(text, color_code)
+    "\e[#{color_code}m#{text}\e[0m"
+  end
+  
+  def red(text); colorize(text, 31); end
+  def green(text); colorize(text, 32); end
 end

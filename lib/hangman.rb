@@ -2,13 +2,16 @@
 
 puts 'Hangman Initialized!'
 require 'time'
+require 'yaml'
+
 require_relative 'display'
 require_relative 'mixin'
-require 'yaml'
+require_relative 'helper'
 
 class Game
   include HangmanDisplay
   include BasicSerializable
+  include Colorize
   ATTEMPTS = 6
   SAVE_DIR = 'save/'
 
@@ -23,11 +26,11 @@ class Game
     @guesses = guesses
     @secret_word = secret_word
     @turn = turn
-    @incorrect_guesses = compute_incorrect_guesses(guesses, secret_word)
-    @status = compute_status(secret_word, guesses)
+    # @status = compute_status(secret_word, guesses)
+    @status = Array.new(@secret_word.length) { '_' }
   end
 
-  attr_reader :board, :incorrect_guesses, :status, :turn
+  attr_reader :board, :status, :turn, :guesses
 
   def self.select_word(word_list, min_length, max_length)
     rand_idx = rand(word_list.length)
@@ -56,45 +59,56 @@ class Game
   end
 
   def start
-    if save_files_exist? && player_want_to_load?
-      load_phase
-      started_from_save = true
-    else
-      started_from_save = false
-    end
-    result = play(started_from_save: started_from_save)
+    load_phase if save_files_exist? && player_want_to_load?
+    result = play
     if result
-      announce_player_won
+      puts green(player_won_msg)
     else
-      annouce_no_attempt_left
-      annouce_secret_word(@secret_word)
+      puts green(player_lose_msg)
+      puts annouce_secret_word_msg(@secret_word)
     end
   end
 
   private
 
-  def play(started_from_save:)
+  def play
     # incorrect_guesses = compute_incorrect_guesses
     return true if all_opened?
     return false if incorrect_guesses.length > ATTEMPTS
-
-    display_turn(turn)
-    annouce_status(status)
-    annouce_incorrect_guesses(incorrect_guesses)
-    save_phase if !started_from_save && !turn.zero?
-    puts "\n"
-    annouce_attemps_left(attempts_left)
-    letter = guess_from_player
-    if @secret_word.include? letter
-      matched_num = update_status_with(letter)
+    puts display_turn(turn)
+    puts annouce_status(status)
+    puts annouce_incorrect_guesses(incorrect_guesses)
+    # save_phase if !started_from_save && !turn.zero?
+    puts annouce_attemps_left(attempts_left)
+    answer = guess_from_player
+    if answer == 'save'
+      save_game
+    elsif @secret_word.include? answer
+      matched_num = update_status_with(answer)
     else
-      @incorrect_guesses << letter
       matched_num = 0
     end
-    announce_num_match(matched_num, letter)
+    @guesses << answer
+    puts num_match_msg(matched_num, answer)
     @turn += 1
     puts "\n\n"
-    play(started_from_save: false)
+    play
+  end
+
+  def incorrect_guesses
+    guesses.reject { |guess| @secret_word.include? guess}
+  end
+
+  def guess_from_player
+    puts guess_msg
+    loop do
+      answer = gets.chomp.downcase
+      included = guesses.include?(answer)
+      return answer if answer.match(/^[a-z]|\bsave\b$/) && !included
+
+      respond_msg = included ? existed_msg : invalid_input_msg
+      puts red(respond_msg)
+    end
   end
 
   def compute_incorrect_guesses(guesses, secret_word)
@@ -107,13 +121,6 @@ class Game
     end
   end
 
-  def save_phase
-    return unless player_want_to_save?
-
-    save_game
-    annouce_save_done
-  end
-
   def save_game
     Dir.mkdir('save') unless Dir.exist?('save')
     time_formatted = Time.now.strftime('%F_%R')
@@ -123,6 +130,7 @@ class Game
     File.open(filepath, 'w') do |file|
       file.write(save_content)
     end
+    puts green(save_done_msg)
   end
 
   def save_files_exist?
@@ -150,7 +158,7 @@ class Game
   end
 
   def attempts_left
-    ATTEMPTS - @incorrect_guesses.length
+    ATTEMPTS - incorrect_guesses.length
   end
 
   def secret_word=(word)
@@ -159,8 +167,22 @@ class Game
     @board = Board.new(@secret_word)
   end
 
-  def guess_from_player
-    print 'Guess a letter that the secret word included: '
+  # def guess_from_player
+  #   print 'Guess a letter that the secret word included: '
+  #   loop do
+  #     char = gets.chomp.downcase
+  #     return char if char.match(/^[a-z]$/)
+
+  #     print 'Invalid input, please type again: '
+  #   end
+  # end
+
+  def select_from_player
+    text = <<~HEREDOC
+      Guess a letter that secret word include
+      You can also type 'save' to save the game
+    HEREDOC
+    puts text
     loop do
       char = gets.chomp.downcase
       return char if char.match(/^[a-z]$/)
