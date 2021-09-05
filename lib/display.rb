@@ -33,14 +33,12 @@ module HangmanDisplay
   end
 
   def annouce_status(status)
-    text = <<~HEREDOC
+    <<~HEREDOC
 
       Current status:
       #{status.join(' ')}
 
     HEREDOC
-
-    green(text)
   end
 
   def annouce_incorrect_guesses(list)
@@ -61,7 +59,7 @@ module HangmanDisplay
       Invalid input
     MSG
   end
-  
+
   def guess_msg
     <<~HEREDOC
       Guess a letter that secret word include
@@ -73,9 +71,22 @@ module HangmanDisplay
     "Saved. You can press 'Ctrl + C' to exit game now if you want"
   end
 
-  def player_want_to_save?
-    puts 'Do you want to save current state?'
-    confirm
+  # def player_want_to_save?
+  #   puts 'Do you want to save current state?'
+  #   confirm
+  # end
+
+  def introduce_game_msg
+    <<~MSG
+      This Hangman game selects a random word from a text file.
+
+      Player's mission is to guess all letters included in the secret word.
+      After 6 inccorected guesses, the game will end.
+
+      Each turn, player can choose to save the current state to disk.
+      At the start of the game, game will check if save files exists and ask if player wants to load saves.
+      Loading one file save will restote the state of the game storing in the file.\s
+    MSG
   end
 
   def confirm
@@ -91,15 +102,11 @@ module HangmanDisplay
     confirm
   end
 
-  def ask_load_indexes(list)
-    puts 'Type the indexes of the file save you want to load, start from 1'
-    print "Press '0' to skip loading and play new game: "
-    loop do
-      answer = gets.chomp
-      return answer.to_i if answer.match(/[0-#{list.length}]/)
-
-      puts 'Not in valid range, please type again'
-    end
+  def load_instruction_msg
+    <<~MSG
+      Type the indexes of the file save you want to load, start from 1
+      Press '0' to skip loading and play new game:\s
+    MSG
   end
 
   def show_save_list(list)
@@ -109,8 +116,8 @@ module HangmanDisplay
     end
   end
 
-  def annouce_load_finished
-    puts 'Loaded save files'
+  def load_finished_msg
+    'Loaded save files'
   end
 end
 
@@ -118,7 +125,12 @@ module Colorize
   def colorize(text, color_code)
     "\e[#{color_code}m#{text}\e[0m"
   end
-  
-  def red(text); colorize(text, 31); end
-  def green(text); colorize(text, 32); end
+
+  def red(text)
+    colorize(text, 31)
+  end
+
+  def green(text)
+    colorize(text, 32)
+  end
 end

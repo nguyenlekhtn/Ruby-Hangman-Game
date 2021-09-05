@@ -1,8 +1,10 @@
 module Helper
-  def from_input(_text, regexp)
+  def from_input(regexp, rescue_msg)
     loop do
-      input = gets.chomp
-      return input if input.match(regexp)
+      answer = gets.chomp
+      return answer.to_i if answer.match(regexp)
+
+      puts rescue_msg
     end
   end
 end

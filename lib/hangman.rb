@@ -12,6 +12,7 @@ class Game
   include HangmanDisplay
   include BasicSerializable
   include Colorize
+  include Helper
   ATTEMPTS = 6
   SAVE_DIR = 'save/'
 
@@ -58,7 +59,13 @@ class Game
     select_word(dictionary, 5, 12)
   end
 
+  def player_want_to_load?
+    puts 'Do you want to load save files?'
+    confirm
+  end
+
   def start
+    puts green(introduce_game_msg)
     load_phase if save_files_exist? && player_want_to_load?
     result = play
     if result
@@ -75,8 +82,9 @@ class Game
     # incorrect_guesses = compute_incorrect_guesses
     return true if all_opened?
     return false if incorrect_guesses.length > ATTEMPTS
+
     puts display_turn(turn)
-    puts annouce_status(status)
+    puts green(annouce_status(status))
     puts annouce_incorrect_guesses(incorrect_guesses)
     # save_phase if !started_from_save && !turn.zero?
     puts annouce_attemps_left(attempts_left)
@@ -92,11 +100,13 @@ class Game
     puts num_match_msg(matched_num, answer)
     @turn += 1
     puts "\n\n"
+
+    # recurively play with modified states
     play
   end
 
   def incorrect_guesses
-    guesses.reject { |guess| @secret_word.include? guess}
+    guesses.reject { |guess| @secret_word.include? guess }
   end
 
   def guess_from_player
@@ -137,6 +147,11 @@ class Game
     Dir.exist?(SAVE_DIR) && !Dir.empty?(SAVE_DIR)
   end
 
+  def ask_load_indexes(list)
+    print load_instruction_msg
+    from_input(/[0-#{list.length}]/, 'Not in valid range, please type again')
+  end
+
   def load_phase
     # show file saves list with indexes
     file_list = Dir.children(SAVE_DIR)
@@ -153,7 +168,7 @@ class Game
     rescue StandardError
       puts "Oops. Can't load the selected file."
     else
-      annouce_load_finished
+      puts load_finished_msg
     end
   end
 
