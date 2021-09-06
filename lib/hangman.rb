@@ -99,7 +99,7 @@ class Game
     @guesses << answer
     puts num_match_msg(matched_num, answer)
     @turn += 1
-    puts "\n\n"
+    puts
 
     # recurively play with modified states
     play

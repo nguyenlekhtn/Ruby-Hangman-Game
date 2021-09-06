@@ -9,4 +9,4 @@ Each turn, player can choose to save the current state to disk. At the start of 
 
 The easiest way to play this game, is to play online at [repl.it](https://replit.com/@nguyenlekhtn/Ruby-Hangman-Game). To play online, click on the green 'run' button at the top of the repl.it page. Otherwise, you can download this repository and run `ruby lib/hangman.rb` in the command line. 
 
-[![Run on Repl.it](https://repl.it/badge/github/@nguyenlekhtn/Ruby-Hangman-Game)](https://repl.it/@nguyenlekhtn/Ruby-Hangman-Game-1)
+[![Run on Repl.it](https://repl.it/badge/github/@nguyenlekhtn/Ruby-Hangman-Game)](https://repl.it/@nguyenlekhtn/Ruby-Hangman-Game)
