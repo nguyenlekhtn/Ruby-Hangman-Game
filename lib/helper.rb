@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Helper
   def from_input(regexp, rescue_msg)
     loop do

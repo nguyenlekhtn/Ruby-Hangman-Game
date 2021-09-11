@@ -59,7 +59,6 @@ class Game
     select_word(dictionary, 5, 12)
   end
 
-  
   def start
     puts green(introduce_game_msg)
     load_phase if save_files_exist? && player_want_to_load?
@@ -109,7 +108,6 @@ class Game
     puts 'Do you want to load save files?'
     confirm
   end
-
 
   def incorrect_guesses
     guesses.reject { |guess| @secret_word.include? guess }
