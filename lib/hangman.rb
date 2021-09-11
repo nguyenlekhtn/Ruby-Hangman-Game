@@ -16,7 +16,7 @@ class Game
   ATTEMPTS = 6
   SAVE_DIR = 'save/'
 
-  def self.started_from_save
+  def self.new_game
     guesses = []
     secret_word = word_from_dictionary
     turn = 0
@@ -59,11 +59,7 @@ class Game
     select_word(dictionary, 5, 12)
   end
 
-  def player_want_to_load?
-    puts 'Do you want to load save files?'
-    confirm
-  end
-
+  
   def start
     puts green(introduce_game_msg)
     load_phase if save_files_exist? && player_want_to_load?
@@ -86,16 +82,20 @@ class Game
     puts display_turn(turn)
     puts green(annouce_status(status))
     puts annouce_incorrect_guesses(incorrect_guesses)
-    # save_phase if !started_from_save && !turn.zero?
     puts annouce_attemps_left(attempts_left)
-    answer = guess_from_player
-    if answer == 'save'
+    # loop to continue game after saved
+    while true
+      answer = guess_from_player
+      break unless answer == 'save'
+
       save_game
-    elsif @secret_word.include? answer
-      matched_num = update_status_with(answer)
-    else
-      matched_num = 0
     end
+
+    matched_num = if @secret_word.include? answer
+                    update_status_with(answer)
+                  else
+                    0
+                  end
     @guesses << answer
     puts num_match_msg(matched_num, answer)
     @turn += 1
@@ -104,6 +104,12 @@ class Game
     # recurively play with modified states
     play
   end
+
+  def player_want_to_load?
+    puts 'Do you want to load save files?'
+    confirm
+  end
+
 
   def incorrect_guesses
     guesses.reject { |guess| @secret_word.include? guess }
@@ -218,4 +224,4 @@ class Game
   end
 end
 
-Game.started_from_save.start
+Game.new_game.start
